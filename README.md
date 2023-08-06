@@ -1,0 +1,4 @@
+# CODSOFT
+CodSoft Internship Task No. 5
+
+HANDWRITTEN TEXT GENERATION
