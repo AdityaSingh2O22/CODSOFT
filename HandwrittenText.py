@@ -1,10 +1,14 @@
+import os
+import string
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM
+from PIL import Image, ImageDraw, ImageFont
 
-# Replace 'text_data' with your dataset containing handwritten text examples
-text_data = "H:\CODESOFT\hadnwritten_text.png"
+
+text_data = "H:\CODESOFT\data\small\boxing\boxing\1.jpg"
+
 
 # Create a vocabulary mapping each unique character to a unique integer
 chars = sorted(set(text_data))
@@ -108,5 +112,42 @@ def generate_text(model, seed_text, num_chars, temperature=1.0):
 seed_text = "Your initial seed text here...\n"
 num_chars_to_generate = 500
 
+# generated_text = generate_text(model, seed_text, num_chars_to_generate)
+# print(generated_text)
+
+# Function to convert text to images
+def text_to_images(text):
+    font = ImageFont.load_default()  # You can choose a different font and size
+    image_width, image_height = font.getsize(text)
+    image = Image.new("RGB", (image_width, image_height), "white")
+    draw = ImageDraw.Draw(image)
+    draw.text((0, 0), text, font=font, fill="black")
+    return image
+
+# Create a folder to store the generated images
+output_folder = "generated_images"
+os.makedirs(output_folder, exist_ok=True)
+
+# Generate text using your model
 generated_text = generate_text(model, seed_text, num_chars_to_generate)
-print(generated_text)
+
+# Define a function to sanitize a character for file naming
+def sanitize_character(char):
+    valid_characters = set(string.ascii_letters + string.digits + "_")
+    return char if char in valid_characters else "_"
+
+# Sanitize the generated text for file naming
+sanitized_generated_text = "".join(sanitize_character(char) for char in generated_text)
+
+# Convert generated text to images
+generated_images = []
+for char in generated_text:
+    char_image = text_to_images(char)
+    generated_images.append(char_image)
+
+# Convert generated text to images and save to the specified folder
+for idx, char in enumerate(generated_text):
+    char_image = text_to_images(char)
+    file_name = f"generated_image_{idx}_{char}.png"
+    file_path = os.path.join(output_folder, file_name)
+    char_image.save(file_path)  # Save image to the specified folder
